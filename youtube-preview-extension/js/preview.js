@@ -10,13 +10,16 @@ var Preview = {
   ImageIdReg: new RegExp("vi(_webp)?\\/([a-z0-9-_=]+)\\/([a-z]*default)\\.([a-z]+)*", "i"),
   videoIdReg: new RegExp("v=([a-z0-9-_=]+)", "i"),
   channelImageIdReg: new RegExp("yts/img/pixel-([a-z0-9-_=]+)\\.([a-z]+)*", "i"),
+  iframeURLRegEx: new RegExp("^https?:\/\/www.youtube.com\/embed\/([a-z0-9-_=]+)", "i"),
   ratingList: {},
+  iframesList: {},
   API_KEY: "AIzaSyAKHgX0wWr82Ko24rnJSBqs8FFvHns21a4",
   initialize: function() {
     console.log("Preview.init");
 
     document.addEventListener("DOMNodeInserted", Preview.onDOMNodeInserted, true);
     Preview.delegateOnVideoThumb();
+    Preview.delegateOnIframe();
 
     $(document)
       .off('mouseenter mouseleave')
@@ -28,7 +31,9 @@ var Preview = {
   onDOMNodeInserted: function(evt) {
     var el = evt.target, nodeName = el.nodeName.toLowerCase();
 
-    if (["#comment","#text","script","style","input","iframe","embed","button","video", "link"].indexOf(nodeName) === -1) {
+    if (nodeName === "iframe") {
+      Preview.delegateOnIframe(el);
+    } else if (["#comment","#text","script","style","input","embed","button","video", "link"].indexOf(nodeName) === -1) {
       Preview.delegateOnVideoThumb(el);
     }
     return false;
@@ -128,6 +133,27 @@ var Preview = {
         fn.apply(context, args);
       }, delay);
     };
+  },
+  delegateOnIframe: function(el) {
+    el = el || $("body").get(0) || document;
+    var iframes = $(el).find('iframe').get(0) || el;
+    $(iframes)
+      .each(function(i, iframe){
+        var attrs = {};
+        Array.prototype.slice
+          .call(iframe.attributes)
+          .forEach(function(attr) {
+            attrs[attr.name] = attr.value;
+          });
+
+        if (attrs.src && Preview.iframeURLRegEx.test(attrs.src)){
+          var id = Preview.iframeURLRegEx.exec(attrs.src);
+          var obj = {};
+          obj.el = iframe;
+          ob.id = id;
+          Preview.iframesList[id] = obj;
+        }
+      })
   },
   loadStoryboard: function(storyboard) {
     if (!Preview.imgEl || Preview.id !== storyboard.id) return false;

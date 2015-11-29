@@ -10,6 +10,7 @@
     "48": "assets/images/icon.png"
   },
   "content_scripts": [{
+    "run_at": "document_end",
     "css": [
       "css/preview.css"
     ],
@@ -18,6 +19,7 @@
       "js/preview.js"
     ],
     "matches": [
+      "*://*/*",
       "*://www.youtube.com/*",
       "*://www.google.com/*",
       "*://www.google.ac/*",
@@ -219,6 +221,8 @@
       "*://www.google.co.zm/*",
       "*://www.google.co.zw/*"
     ],
-    "run_at": "document_end"
+    "permissions": [
+      "<all_urls>"
+    ]
   }]
 }
