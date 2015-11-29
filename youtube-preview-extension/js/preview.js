@@ -65,6 +65,8 @@ var Preview = {
             }
 
             tempList.push(id);
+            // var text = new Preview.TimedText(id)
+            // text.getTimedText();
             Preview.debounce(Preview.retrieveVideoData, 20)(tempList);
           }
         }
@@ -240,6 +242,22 @@ Preview.Storyboard.prototype.url = function(l, m) {
   m = m || this.page();
   return this.baseUrl.replace(/\\/g, "").replace("$L", l).replace("$N", "M" + m) + "?sigh=" + this.sigh;
 };
+
+Preview.TimedText = function(id) {
+  this.id = id;
+};
+Preview.TimedText.prototype.getTimedText = function() {
+  var reqUrl = "https://www.youtube.com/api/timedtext?v=" + this.id + "&lang=en";
+  $.ajax({
+    url: reqUrl,
+    dataType: "html",
+    success: function(html) {
+      if (html) {
+        var fullscript = $(html).find('text').text();
+      }
+    }
+  });
+}
 
 Preview.initialize();
 
